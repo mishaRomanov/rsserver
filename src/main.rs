@@ -1,35 +1,33 @@
 mod cfg;
+mod handler;
 
-use axum::{
-    body::Body,
-    response::{self, Response},
-    routing,
-};
-use http::StatusCode;
+use axum::{routing, Extension};
+use handler::{HandersState, Handlers};
 use tokio::net;
 
 #[tokio::main]
 async fn main() {
+    // Config parsing.
     let config = cfg::Config::new();
 
-    let tcp_listener = net::TcpListener::bind(&config.socket_addr)
-        .await
-        .expect("Failed to bind TCP socket");
+    // App state creation.
+    let app_state = HandersState::new();
 
-    println!("Listening on {}", &config.socket_addr);
+    match net::TcpListener::bind(&config.socket_addr).await {
+        Ok(tcp_listener) => {
+            println!("Listening on {}", &config.socket_addr);
+            println!("available endpoints: \n / \n /hello");
 
-    axum::serve(
-        tcp_listener,
-        axum::Router::new().route("/", routing::get(root)),
-    )
-    .await
-    .unwrap();
-}
-
-async fn root() -> Response {
-    Response::builder()
-        .status(StatusCode::OK)
-        .header("Content-type", "application/json")
-        .body(Body::from(r#"{"message": "hello, i am a root handler!"}"#))
-        .unwrap()
+            axum::serve(
+                tcp_listener,
+                axum::Router::new()
+                    .route("/", routing::get(Handlers::root))
+                    .route("/hello", routing::get(Handlers::hello))
+                    .layer(Extension(app_state)),
+            )
+            .await
+            .unwrap();
+        }
+        Err(e) => panic!("failed to bind tcp socket: {e}"),
+    }
 }
