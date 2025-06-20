@@ -1,8 +1,10 @@
+mod app_state;
 mod cfg;
 mod handler;
 
+use app_state::AppState;
 use axum::{routing, Extension};
-use handler::{HandersState, Handlers};
+use handler::Handlers;
 use tokio::net;
 
 #[tokio::main]
@@ -11,7 +13,7 @@ async fn main() {
     let config = cfg::Config::new();
 
     // App state creation.
-    let app_state = HandersState::new();
+    let app_state = AppState::new(config.db_addr).await;
 
     match net::TcpListener::bind(&config.socket_addr).await {
         Ok(tcp_listener) => {
