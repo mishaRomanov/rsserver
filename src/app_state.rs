@@ -1,3 +1,4 @@
+use crate::models;
 use sqlx::{postgres::PgPoolOptions, Executor};
 use std::sync::Arc;
 
@@ -31,13 +32,16 @@ impl Postgres {
         }
     }
 
-    pub async fn write_data(&self) -> Result<(), String> {
+    pub async fn store_log(&self, payload: models::Log) -> Result<(), String> {
+        let timestamp = payload.parse_date_time()?;
+
         match self
             .pg_pool
             .execute(
-                sqlx::query("INSERT INTO info (data, status) VALUES ($1,$2)")
-                    .bind("ok")
-                    .bind(true),
+                sqlx::query("INSERT INTO logs (time, level, message) VALUES ($1,$2,$3)")
+                    .bind(timestamp)
+                    .bind(payload.level)
+                    .bind(payload.message),
             )
             .await
         {

@@ -1,7 +1,8 @@
+use crate::models;
 use crate::AppState;
-
-use axum::{body::Body, extract::Extension, response::Response};
+use axum::{body::Body, extract::Extension, extract::Json, response::Response};
 use http::StatusCode;
+use serde_json;
 
 use std::sync::Arc;
 
@@ -18,20 +19,24 @@ impl Handlers {
             .body(Body::from(r#"{"message": "hello, i am a root handler!"}"#))
             .unwrap()
     }
-
-    // Temporary handler to test Extension usage.
-    pub async fn hello(Extension(state): Extension<Arc<AppState>>) -> Response {
-        match state.pg.write_data().await {
+    // Receives log record and stores it into database.
+    pub async fn receive_log(
+        Extension(state): Extension<Arc<AppState>>,
+        Json(payload): Json<models::Log>,
+    ) -> Response {
+        match state.pg.store_log(payload).await {
             Ok(_) => Response::builder()
                 .status(StatusCode::OK)
-                .header("Content-type", "application/json")
-                .body(Body::from(r#"{"text":"hello!"}"#))
+                .body(Body::from(""))
                 .unwrap(),
-            Err(e) => Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .header("Content-type", "application/json")
-                .body(Body::from(r#"{"error":"#.to_string() + e.as_str() + r#"}"#))
-                .unwrap(),
+            Err(e) => {
+                let error = serde_json::to_vec(&models::ErrorResponse::from_string(&e)).unwrap();
+                Response::builder()
+                    .status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .header("Content-type", "application/json")
+                    .body(Body::from(error))
+                    .unwrap()
+            }
         }
     }
 }

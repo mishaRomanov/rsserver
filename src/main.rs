@@ -1,6 +1,7 @@
 mod app_state;
 mod cfg;
 mod handler;
+mod models;
 
 use app_state::AppState;
 use axum::{routing, Extension};
@@ -17,14 +18,14 @@ async fn main() {
 
     match net::TcpListener::bind(&config.socket_addr).await {
         Ok(tcp_listener) => {
-            println!("Listening on {}", &config.socket_addr);
-            println!("available endpoints: \n / \n /hello");
+            println!("Listening on {}\n\n", &config.socket_addr);
+            println!("available endpoints:\nGET /\nPOST /log");
 
             axum::serve(
                 tcp_listener,
                 axum::Router::new()
                     .route("/", routing::get(Handlers::root))
-                    .route("/hello", routing::get(Handlers::hello))
+                    .route("/log", routing::post(Handlers::receive_log))
                     .layer(Extension(app_state)),
             )
             .await
