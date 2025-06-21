@@ -2,7 +2,6 @@ use crate::models;
 use crate::AppState;
 use axum::{body::Body, extract::Extension, extract::Json, response::Response};
 use http::StatusCode;
-use serde_json;
 
 use std::sync::Arc;
 
@@ -29,14 +28,11 @@ impl Handlers {
                 .status(StatusCode::OK)
                 .body(Body::from(""))
                 .unwrap(),
-            Err(e) => {
-                let error = serde_json::to_vec(&models::ErrorResponse::from_string(&e)).unwrap();
-                Response::builder()
-                    .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .header("Content-type", "application/json")
-                    .body(Body::from(error))
-                    .unwrap()
-            }
+            Err(e) => Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .header("Content-type", "application/json")
+                .body(Body::from(models::ErrorResponse::from_string(&e)))
+                .unwrap(),
         }
     }
 }

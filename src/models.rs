@@ -25,7 +25,9 @@ pub struct ErrorResponse {
 }
 
 impl ErrorResponse {
-    pub fn from_string(msg: &String) -> Self {
-        Self { error: msg.clone() }
+    // Returns ErrorResponse as bytes. Ready to be
+    // passed into axum::response::Body
+    pub fn from_string(msg: &String) -> Vec<u8> {
+        serde_json::to_vec(&Self { error: msg.clone() }).unwrap()
     }
 }
