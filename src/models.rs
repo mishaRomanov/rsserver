@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use chrono::{DateTime, Utc};
 use serde::{self, Deserialize, Serialize};
 use sqlx::types::chrono;
 
@@ -12,7 +11,7 @@ pub struct Log {
 }
 
 impl Log {
-    pub fn parse_date_time(&self) -> Result<DateTime<Utc>, String> {
+    pub fn parse_date_time(&self) -> Result<chrono::DateTime<chrono::Utc>, String> {
         match chrono::DateTime::from_str(self.time.as_str()) {
             Ok(parsed_time) => Ok(parsed_time),
             Err(e) => Err(format!("failed to parse date from string: {e}")),
