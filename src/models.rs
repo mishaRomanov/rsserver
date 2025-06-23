@@ -1,7 +1,7 @@
 use serde::{self, Deserialize, Serialize};
-use sqlx::types::chrono;
+use sqlx::{prelude::FromRow, types::chrono};
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize, FromRow)]
 pub struct Log {
     // Should be formatted as rfc2822, otherwise parsing will fail.
     pub time: String,
@@ -16,6 +16,9 @@ impl Log {
             Ok(parsed_time) => Ok(parsed_time.to_utc()),
             Err(e) => Err(format!("failed to parse date from string: {e}")),
         }
+    }
+    pub fn response_from_vec(logs_vec: &Vec<Log>) -> Vec<u8> {
+        serde_json::to_vec(&logs_vec).unwrap()
     }
 }
 

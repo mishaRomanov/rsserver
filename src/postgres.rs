@@ -19,6 +19,7 @@ impl PostgresAccessor {
         }
     }
 
+    // Store log in a database.
     pub async fn store_log(&self, payload: models::Log) -> Result<(), String> {
         let timestamp = payload.parse_date_time()?;
 
@@ -34,6 +35,20 @@ impl PostgresAccessor {
         {
             Ok(_) => Ok(()),
             Err(e) => Err(format!("failed to insert data in postgres: {e}")),
+        }
+    }
+
+    // List all logs.
+    // TODO: fix time parsing stuff.
+    // i should not convert it to text, but
+    // serde does not support chrono timestamps for serialization.
+    pub async fn list_logs(&self) -> Result<Vec<models::Log>, String> {
+        match sqlx::query_as::<_, models::Log>("SELECT level, message, time::text FROM logs")
+            .fetch_all(&self.pg_pool)
+            .await
+        {
+            Ok(res) => Ok(res),
+            Err(e) => Err(format!("failed to fetch all logs from database: {e}")),
         }
     }
 }

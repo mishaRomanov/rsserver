@@ -35,4 +35,18 @@ impl Handlers {
                 .unwrap(),
         }
     }
+    pub async fn list_logs(Extension(state): Extension<Arc<AppState>>) -> Response {
+        match state.pg.list_logs().await {
+            Ok(logs) => Response::builder()
+                .status(StatusCode::OK)
+                .header("Content-type", "application/json")
+                .body(Body::from(models::Log::response_from_vec(&logs)))
+                .unwrap(),
+            Err(e) => Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .header("Content-type", "application/json")
+                .body(Body::from(models::ErrorResponse::from_string(&e)))
+                .unwrap(),
+        }
+    }
 }

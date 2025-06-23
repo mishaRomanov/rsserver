@@ -28,13 +28,14 @@ async fn main() {
     match net::TcpListener::bind(&config.socket_addr).await {
         Ok(tcp_listener) => {
             println!("Listening on {}\n\n", &config.socket_addr);
-            println!("available endpoints:\nGET /\nPOST /log");
+            println!("available endpoints:\nGET /\nPOST /log\nGET /logs");
 
             axum::serve(
                 tcp_listener,
                 axum::Router::new()
                     .route("/", routing::get(Handlers::root))
                     .route("/log", routing::post(Handlers::receive_log))
+                    .route("/logs", routing::get(Handlers::list_logs))
                     .layer(Extension(app_state)),
             )
             .await
