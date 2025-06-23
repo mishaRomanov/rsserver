@@ -2,10 +2,12 @@ mod app_state;
 mod cfg;
 mod handler;
 mod models;
+mod postgres;
 
 use app_state::AppState;
 use axum::{routing, Extension};
 use handler::Handlers;
+use postgres::PostgresAccessor;
 use tokio::net;
 
 #[tokio::main]
@@ -13,8 +15,15 @@ async fn main() {
     // Config parsing.
     let config = cfg::Config::new();
 
+    let pg_accessor = {
+        match PostgresAccessor::new(config.db_addr).await {
+            Ok(pg) => pg,
+            Err(e) => panic!("failed to establish connection to database: {e}"),
+        }
+    };
+
     // App state creation.
-    let app_state = AppState::new(config.db_addr).await;
+    let app_state = AppState::new(pg_accessor).await;
 
     match net::TcpListener::bind(&config.socket_addr).await {
         Ok(tcp_listener) => {
