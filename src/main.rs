@@ -15,6 +15,9 @@ async fn main() {
     // Config parsing.
     let config = cfg::Config::new();
 
+    // Initialize logging to stdout.
+    tracing_subscriber::fmt::init();
+
     let pg_accessor = {
         match PostgresAccessor::new(config.db_addr).await {
             Ok(pg) => pg,
@@ -27,8 +30,8 @@ async fn main() {
 
     match net::TcpListener::bind(&config.socket_addr).await {
         Ok(tcp_listener) => {
-            println!("Listening on {}\n\n", &config.socket_addr);
-            println!("available endpoints:\nGET /\nPOST /log\nGET /logs");
+            tracing::info!("Listening on {}", &config.socket_addr);
+            tracing::info!("available endpoints:\nGET /\nPOST /log\nGET /logs");
 
             axum::serve(
                 tcp_listener,
