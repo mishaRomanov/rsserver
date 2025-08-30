@@ -1,6 +1,7 @@
 mod app_state;
 mod cfg;
 mod handler;
+mod jwt;
 mod models;
 mod postgres;
 

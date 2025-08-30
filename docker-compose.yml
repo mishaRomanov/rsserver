@@ -1,0 +1,32 @@
+services:
+  db: 
+    image: postgres:latest
+    container_name: rsserver.db
+    restart: unless-stopped
+    networks:
+      - rsserver
+    environment:
+      POSTGRES_PASSWORD: pass 
+      POSTGRES_USER: backend_user 
+      POSTGRES_DB: logs 
+    volumes:
+      - .postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  # Doesn't work for some reason. TODO: fix
+  migrations: 
+      image: migrate/migrate:latest
+      env_file:
+      - .env 
+      networks:
+      - rsserver
+      volumes:
+      - ./migrations:/migrations
+      depends_on:
+      - db
+      command: ["-path", "/migrations", "-database",  "$DB_ADDR", "up"]
+networks:
+  rsserver:
+    driver: bridge
+
