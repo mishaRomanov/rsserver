@@ -8,7 +8,8 @@ git clone git@github.com:mishaRomanov/rsserver.git
 ```bash
 cd rsserver
 make help
-
+```
+```
 run      -> run service
 run_detached     -> run in detached mode (with -d flag)
 kill     -> stop all containers
