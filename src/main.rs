@@ -5,6 +5,8 @@ mod jwt;
 mod models;
 mod postgres;
 
+use std::ascii::EscapeDefault;
+
 use app_state::AppState;
 use axum::{routing, Extension};
 use handler::Handlers;
@@ -28,6 +30,7 @@ async fn main() {
 
     // App state creation.
     let app_state = AppState::new(pg_accessor).await;
+    let tokens_service = jwt::TokenService::new(config.jwt_secret);
 
     match net::TcpListener::bind(&config.socket_addr).await {
         Ok(tcp_listener) => {
@@ -40,7 +43,8 @@ async fn main() {
                     .route("/", routing::get(Handlers::root))
                     .route("/log", routing::post(Handlers::receive_log))
                     .route("/logs", routing::get(Handlers::list_logs))
-                    .layer(Extension(app_state)),
+                    .layer(Extension(app_state))
+                    .layer(Extension(tokens_service)),
             )
             .await
             .unwrap();

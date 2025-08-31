@@ -20,6 +20,10 @@ impl Handlers {
             .body(Body::from(r#"{"message": "hello, i am a root handler!"}"#))
             .unwrap()
     }
+
+    // TODO: add /auth endpoint
+    // and add token validation for each endpoint (maybe use axum middleware)
+
     // Receives log record and stores it into database.
     #[instrument(skip(state, payload))]
     pub async fn receive_log(

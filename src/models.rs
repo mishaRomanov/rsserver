@@ -34,3 +34,9 @@ impl ErrorResponse {
         serde_json::to_vec(&Self { error: msg.clone() }).unwrap()
     }
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct User {
+    pub name: String,
+    pub email: String,
+}
