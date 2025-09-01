@@ -33,5 +33,6 @@ logs db  -> look at db's logs in --follow mode⏎
 {
   "time":"Mon, 23 Jun 2025 13:28:37 +0200",
   "level":"INFO",
-  "message":"test_message"}
+  "message":"test_message"
+}
 ```
