@@ -17,3 +17,21 @@ rerun    -> self-explainatory. basically calls kill and then run
 logs db  -> look at db's logs in --follow mode⏎
 ```
 - Add `JWT_SECRET` environment variable to `.env` file. Otherwise, default value will be used.
+
+## Available endpoints
+- GET / -> basic root handler
+- POST /auth -> generate jwt token with such payload:
+```json
+{
+    "name": "John Doe",
+    "email": "user@example.com",
+}
+```
+- GET /logs -> fetch all existsing logs
+- POST /log -> write a new log to database with such payload:
+```json
+{
+  "time":"Mon, 23 Jun 2025 13:28:37 +0200",
+  "level":"INFO",
+  "message":"test_message"}
+```
