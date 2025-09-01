@@ -5,8 +5,6 @@ mod jwt;
 mod models;
 mod postgres;
 
-use std::ascii::EscapeDefault;
-
 use app_state::AppState;
 use axum::{routing, Extension};
 use handler::Handlers;
@@ -35,7 +33,6 @@ async fn main() {
     match net::TcpListener::bind(&config.socket_addr).await {
         Ok(tcp_listener) => {
             tracing::info!("Listening on {}", &config.socket_addr);
-            tracing::info!("available endpoints:\nGET /\nPOST /log\nGET /logs");
 
             axum::serve(
                 tcp_listener,
@@ -43,6 +40,7 @@ async fn main() {
                     .route("/", routing::get(Handlers::root))
                     .route("/log", routing::post(Handlers::receive_log))
                     .route("/logs", routing::get(Handlers::list_logs))
+                    .route("/auth", routing::post(Handlers::auth))
                     .layer(Extension(app_state))
                     .layer(Extension(tokens_service)),
             )

@@ -35,8 +35,24 @@ impl ErrorResponse {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct User {
     pub name: String,
     pub email: String,
+}
+
+#[derive(Serialize)]
+pub struct TokenResponse {
+    pub token: String,
+}
+
+impl TokenResponse {
+    // Returns ErrorResponse as bytes. Ready to be
+    // passed into response::Body
+    pub fn from_string(token_string: &String) -> Vec<u8> {
+        serde_json::to_vec(&Self {
+            token: token_string.clone(),
+        })
+        .unwrap()
+    }
 }

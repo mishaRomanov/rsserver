@@ -1,3 +1,4 @@
+use crate::jwt;
 use crate::models;
 use crate::AppState;
 use axum::{body::Body, extract::Extension, extract::Json, response::Response};
@@ -14,6 +15,7 @@ impl Handlers {
     // Basic root handler.
     #[instrument]
     pub async fn root() -> Response {
+        tracing::info!("request for a root handler");
         Response::builder()
             .status(StatusCode::OK)
             .header("Content-type", "application/json")
@@ -21,8 +23,33 @@ impl Handlers {
             .unwrap()
     }
 
-    // TODO: add /auth endpoint
-    // and add token validation for each endpoint (maybe use axum middleware)
+    // Generates a JWT token for a user.
+    pub async fn auth(
+        Extension(token_service): Extension<Arc<jwt::TokenService>>,
+        Json(user_payload): Json<models::User>,
+    ) -> Response {
+        match token_service.from_user(user_payload.clone()) {
+            Ok(token) => {
+                tracing::info!("generated a token for {}", user_payload.name);
+
+                Response::builder()
+                    .status(StatusCode::OK)
+                    .body(Body::from(models::TokenResponse::from_string(&token)))
+                    .unwrap()
+            }
+            Err(e) => {
+                tracing::error!(
+                    "failed to generate token for user {}: {e}",
+                    user_payload.name
+                );
+
+                Response::builder()
+                    .status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .body(Body::from(models::ErrorResponse::from_string(&e)))
+                    .unwrap()
+            }
+        }
+    }
 
     // Receives log record and stores it into database.
     #[instrument(skip(state, payload))]

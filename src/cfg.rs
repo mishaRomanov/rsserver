@@ -16,7 +16,7 @@ impl Config {
         let secret = std::env::var("JWT_SECRET").unwrap_or("default_secret".to_string());
         // Ill keep this as default for now.
         Self {
-            socket_addr: String::from("127.0.0.1:4040"),
+            socket_addr: String::from("0.0.0.0:4040"),
             db_addr: addr,
             jwt_secret: secret,
         }
