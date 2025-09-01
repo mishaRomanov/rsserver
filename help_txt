@@ -1,3 +1,5 @@
+build -> build compose file 
+rebuild -> delete old compose image and rebuild it
 run -> run service
 run_detached -> run in detached mode (with -d flag)
 kill -> stop all containers 

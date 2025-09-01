@@ -16,3 +16,4 @@ kill     -> stop all containers
 rerun    -> self-explainatory. basically calls kill and then run
 logs db  -> look at db's logs in --follow mode⏎
 ```
+- Add `JWT_SECRET` environment variable to `.env` file. Otherwise, default value will be used.
