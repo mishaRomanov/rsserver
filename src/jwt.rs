@@ -1,8 +1,8 @@
 use crate::models;
+
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Validation};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::sync::Arc;
 use std::time;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,11 +21,11 @@ pub struct TokenService {
 }
 
 impl TokenService {
-    pub fn new(secret: String) -> Arc<Self> {
-        Arc::new(Self {
+    pub fn new(secret: String) -> Self {
+        Self {
             header_algorithm: Algorithm::HS256,
             encoding_secret: secret,
-        })
+        }
     }
 
     pub fn from_user(&self, user: models::User) -> Result<String, String> {

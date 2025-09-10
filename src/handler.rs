@@ -1,4 +1,3 @@
-use crate::jwt;
 use crate::models;
 use crate::AppState;
 use axum::{body::Body, extract::Extension, extract::Json, response::Response};
@@ -15,7 +14,6 @@ impl Handlers {
     // Basic root handler.
     #[instrument]
     pub async fn root() -> Response {
-        tracing::info!("request for a root handler");
         Response::builder()
             .status(StatusCode::OK)
             .header("Content-type", "application/json")
@@ -25,18 +23,14 @@ impl Handlers {
 
     // Generates a JWT token for a user.
     pub async fn auth(
-        Extension(token_service): Extension<Arc<jwt::TokenService>>,
+        Extension(state): Extension<Arc<AppState>>,
         Json(user_payload): Json<models::User>,
     ) -> Response {
-        match token_service.from_user(user_payload.clone()) {
-            Ok(token) => {
-                tracing::info!("generated a token for {}", user_payload.name);
-
-                Response::builder()
-                    .status(StatusCode::OK)
-                    .body(Body::from(models::TokenResponse::from_string(&token)))
-                    .unwrap()
-            }
+        match state.jwt.from_user(user_payload.clone()) {
+            Ok(token) => Response::builder()
+                .status(StatusCode::OK)
+                .body(Body::from(models::TokenResponse::from_string(&token)))
+                .unwrap(),
             Err(e) => {
                 tracing::error!(
                     "failed to generate token for user {}: {e}",
@@ -58,14 +52,10 @@ impl Handlers {
         Json(payload): Json<models::Log>,
     ) -> Response {
         match state.pg.store_log(payload).await {
-            Ok(_) => {
-                tracing::info!("STORE LOG SUCCESS");
-
-                Response::builder()
-                    .status(StatusCode::OK)
-                    .body(Body::from(""))
-                    .unwrap()
-            }
+            Ok(_) => Response::builder()
+                .status(StatusCode::OK)
+                .body(Body::from(""))
+                .unwrap(),
             Err(e) => {
                 tracing::error!("STORE LOG FAILED: {e}");
 
@@ -81,15 +71,11 @@ impl Handlers {
     #[instrument(skip(state))]
     pub async fn list_logs(Extension(state): Extension<Arc<AppState>>) -> Response {
         match state.pg.list_logs().await {
-            Ok(logs) => {
-                tracing::info!("LIST LOGS SUCCESS");
-
-                Response::builder()
-                    .status(StatusCode::OK)
-                    .header("Content-type", "application/json")
-                    .body(Body::from(models::Log::response_from_vec(&logs)))
-                    .unwrap()
-            }
+            Ok(logs) => Response::builder()
+                .status(StatusCode::OK)
+                .header("Content-type", "application/json")
+                .body(Body::from(models::Log::response_from_vec(&logs)))
+                .unwrap(),
             Err(e) => {
                 tracing::error!("LIST LOGS FAILED: {e}");
 
