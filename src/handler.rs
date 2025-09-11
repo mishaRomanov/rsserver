@@ -17,7 +17,7 @@ impl Handlers {
         Response::builder()
             .status(StatusCode::OK)
             .header("Content-type", "application/json")
-            .body(Body::from(r#"{"message": "hello, i am a root handler!"}"#))
+            .body(Body::from(r#"{"message": "hello! this is a log collector service. To proceed, create yourself a JWT token first at /auth"}"#))
             .unwrap()
     }
 

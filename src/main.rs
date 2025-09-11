@@ -2,15 +2,13 @@ mod app_state;
 mod cfg;
 mod handler;
 mod jwt;
-// TODO: naming
-mod middleware;
 mod models;
 mod postgres;
+mod tools;
 
 use app_state::AppState;
-use axum::{routing, Extension};
+use axum::{middleware, routing, Extension};
 use handler::Handlers;
-use middleware::ServiceMiddleware as serviceMiddleware;
 use postgres::PostgresAccessor;
 use tokio::net;
 use tower::ServiceBuilder;
@@ -23,6 +21,7 @@ async fn main() {
     // Initialize logging to stdout.
     tracing_subscriber::fmt::init();
 
+    // Create postgres accessor instance.
     let pg_accessor = {
         match PostgresAccessor::new(config.db_addr).await {
             Ok(pg) => pg,
@@ -37,22 +36,29 @@ async fn main() {
         Ok(tcp_listener) => {
             tracing::info!("Listening on {}", &config.socket_addr);
 
-            axum::serve(
-                tcp_listener,
-                axum::Router::new()
-                    .route("/", routing::get(Handlers::root))
-                    .route("/log", routing::post(Handlers::receive_log))
-                    .route("/logs", routing::get(Handlers::list_logs))
-                    .route("/auth", routing::post(Handlers::auth))
-                    // Add middleware.
-                    .layer(
-                        ServiceBuilder::new()
-                            .layer(axum::middleware::from_fn(serviceMiddleware::log_request)),
-                    )
-                    .layer(Extension(app_state)),
-            )
-            .await
-            .unwrap();
+            // Only accesible with JWT token.
+            let authorized_router = axum::Router::new()
+                .route("/log", routing::post(Handlers::receive_log))
+                .route("/logs", routing::get(Handlers::list_logs))
+                .layer(middleware::from_fn_with_state(
+                    app_state.clone(),
+                    tools::ServiceMiddleware::validate_token,
+                ));
+
+            let public_router = axum::Router::new()
+                .route("/", routing::get(Handlers::root))
+                .route("/auth", routing::post(Handlers::auth));
+
+            let app = axum::Router::new()
+                .merge(authorized_router)
+                .merge(public_router)
+                .layer(
+                    ServiceBuilder::new()
+                        .layer(middleware::from_fn(tools::ServiceMiddleware::log_request)),
+                )
+                .layer(Extension(app_state));
+
+            axum::serve(tcp_listener, app).await.unwrap();
         }
         Err(e) => panic!("failed to bind tcp socket: {e}"),
     }

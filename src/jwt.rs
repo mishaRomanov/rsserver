@@ -54,7 +54,6 @@ impl TokenService {
         }
     }
 
-    // TODO: add this shit to middleware.
     // Checks whether given token does exist and is valid.
     pub fn is_valid(&self, token: String) -> Result<bool, String> {
         // Create validation struct.
