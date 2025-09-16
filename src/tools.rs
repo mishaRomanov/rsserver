@@ -27,7 +27,7 @@ impl ServiceMiddleware {
         next: Next,
     ) -> Response {
         if let Some(token) = request.headers().get("Authorization") {
-            if let Ok(result) = state.jwt.is_valid(token.to_str().unwrap().to_string()) {
+            if let Ok(result) = state.jwt.is_valid(token.to_str().unwrap()) {
                 match result {
                     true => next.run(request).await,
                     false => Response::builder()

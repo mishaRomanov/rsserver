@@ -11,7 +11,6 @@ pub struct Handlers {}
 
 impl Handlers {
     // Basic root handler.
-    #[instrument]
     pub async fn root() -> Response {
         Response::builder()
             .status(StatusCode::OK)

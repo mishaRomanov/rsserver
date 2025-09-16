@@ -19,13 +19,14 @@ pub struct TokenService {
 }
 
 impl TokenService {
-    pub fn new(secret: String) -> Self {
+    pub fn new(secret: &str) -> Self {
         Self {
             header_algorithm: Algorithm::HS256,
-            encoding_secret: secret,
+            encoding_secret: secret.to_string(),
         }
     }
 
+    /// from_user generates a new JWT token based on user credentials.
     pub fn from_user(&self, user: models::User) -> Result<String, String> {
         let header = jsonwebtoken::Header::new(self.header_algorithm);
 
@@ -53,7 +54,7 @@ impl TokenService {
     }
 
     // Checks whether given token does exist and is valid.
-    pub fn is_valid(&self, token: String) -> Result<bool, String> {
+    pub fn is_valid(&self, token: &str) -> Result<bool, String> {
         // Create validation struct.
         let mut validation = Validation::new(self.header_algorithm);
 
@@ -61,7 +62,7 @@ impl TokenService {
         validation.required_spec_claims = HashSet::new();
 
         match jsonwebtoken::decode::<TokenClaims>(
-            token.as_str(),
+            token,
             &DecodingKey::from_secret(self.encoding_secret.as_bytes()),
             &validation,
         ) {
@@ -79,13 +80,13 @@ mod tests {
 
     #[test]
     fn test_token() {
-        let service = TokenService::new("secret".to_string());
+        let service = TokenService::new("secret");
         let mock_user: User = User {
             name: "test_name".to_string(),
             email: "test_email".to_string(),
         };
 
         let token = service.from_user(mock_user).unwrap();
-        assert_eq!(true, service.is_valid(token).unwrap());
+        assert_eq!(true, service.is_valid(&token).unwrap());
     }
 }

@@ -30,8 +30,11 @@ pub struct ErrorResponse {
 impl ErrorResponse {
     // Returns ErrorResponse as bytes. Ready to be
     // passed into response::Body
-    pub fn from_string(msg: &String) -> Vec<u8> {
-        serde_json::to_vec(&Self { error: msg.clone() }).unwrap()
+    pub fn from_string(msg: &str) -> Vec<u8> {
+        serde_json::to_vec(&Self {
+            error: msg.to_string(),
+        })
+        .unwrap()
     }
 }
 
