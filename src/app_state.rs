@@ -1,7 +1,8 @@
 use crate::{jwt, postgres};
 use std::sync::Arc;
+
 // AppState contains information that is
-// shared between all handlers. For example, dataabase access.
+// shared between all handlers. For example, database access.
 // It is, in a way, some kind of dependency injection.
 #[derive(Clone)]
 pub struct AppState {

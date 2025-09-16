@@ -7,6 +7,7 @@ use axum::{
 };
 use http::StatusCode;
 use std::sync::Arc;
+
 #[derive(Clone)]
 pub struct ServiceMiddleware();
 

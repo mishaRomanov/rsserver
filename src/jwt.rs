@@ -1,9 +1,7 @@
 use crate::models;
-
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Validation};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
-use std::time;
+use std::{collections::HashSet, time};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct TokenClaims {

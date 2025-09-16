@@ -2,9 +2,8 @@ use crate::models;
 use crate::AppState;
 use axum::{body::Body, extract::Extension, extract::Json, response::Response};
 use http::StatusCode;
-use tracing::instrument;
-
 use std::sync::Arc;
+use tracing::instrument;
 
 // An empty struct as s container for all
 // handlers to structure the project.

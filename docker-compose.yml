@@ -31,7 +31,6 @@ services:
     ports:
       - "5434:5432"
 
-  # Doesn't work for some reason. TODO: fix
   migrations: 
       image: migrate/migrate:latest
       env_file:

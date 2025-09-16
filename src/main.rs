@@ -25,7 +25,7 @@ async fn main() {
     let pg_accessor = {
         match PostgresAccessor::new(config.db_addr).await {
             Ok(pg) => pg,
-            Err(e) => panic!("failed to establish connection to database: {e}"),
+            Err(e) => panic!("failed to establish connection to a database: {e}"),
         }
     };
 
