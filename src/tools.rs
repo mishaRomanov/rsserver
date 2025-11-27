@@ -32,24 +32,24 @@ impl ServiceMiddleware {
                     true => next.run(request).await,
                     false => Response::builder()
                         .status(StatusCode::UNAUTHORIZED)
-                        .body(Body::from(models::ErrorResponse::from_string(
-                            &"invalid JWT token".to_string(),
+                        .body(Body::from(models::ErrorResponse::from_string_owned(
+                            "invalid JWT token".to_string(),
                         )))
                         .unwrap(),
                 }
             } else {
                 Response::builder()
                     .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .body(Body::from(models::ErrorResponse::from_string(
-                        &"failed to decode JWT token".to_string(),
+                    .body(Body::from(models::ErrorResponse::from_string_owned(
+                        "failed to decode JWT token".to_string(),
                     )))
                     .unwrap()
             }
         } else {
             Response::builder()
                 .status(StatusCode::BAD_REQUEST)
-                .body(Body::from(models::ErrorResponse::from_string(
-                    &"Authorization token not provided.".to_string(),
+                .body(Body::from(models::ErrorResponse::from_string_owned(
+                    "Authorization token not provided.".to_string(),
                 )))
                 .unwrap()
         }

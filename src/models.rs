@@ -30,11 +30,8 @@ pub struct ErrorResponse {
 impl ErrorResponse {
     // Returns ErrorResponse as bytes. Ready to be
     // passed into response::Body
-    pub fn from_string(msg: &str) -> Vec<u8> {
-        serde_json::to_vec(&Self {
-            error: msg.to_string(),
-        })
-        .unwrap()
+    pub fn from_string_owned(msg: String) -> Vec<u8> {
+        serde_json::to_vec(&Self { error: msg }).unwrap()
     }
 }
 
@@ -52,7 +49,7 @@ pub struct TokenResponse {
 impl TokenResponse {
     // Returns ErrorResponse as bytes. Ready to be
     // passed into response::Body
-    pub fn from_string(token_string: &String) -> Vec<u8> {
+    pub fn from_string_owned(token_string: String) -> Vec<u8> {
         serde_json::to_vec(&Self {
             token: token_string.clone(),
         })

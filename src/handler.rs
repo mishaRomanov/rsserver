@@ -27,7 +27,7 @@ impl Handlers {
         match state.jwt.from_user(user_payload.clone()) {
             Ok(token) => Response::builder()
                 .status(StatusCode::OK)
-                .body(Body::from(models::TokenResponse::from_string(&token)))
+                .body(Body::from(models::TokenResponse::from_string_owned(token)))
                 .unwrap(),
             Err(e) => {
                 tracing::error!(
@@ -37,7 +37,7 @@ impl Handlers {
 
                 Response::builder()
                     .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .body(Body::from(models::ErrorResponse::from_string(&e)))
+                    .body(Body::from(models::ErrorResponse::from_string_owned(e)))
                     .unwrap()
             }
         }
@@ -60,7 +60,7 @@ impl Handlers {
                 Response::builder()
                     .status(StatusCode::INTERNAL_SERVER_ERROR)
                     .header("Content-type", "application/json")
-                    .body(Body::from(models::ErrorResponse::from_string(&e)))
+                    .body(Body::from(models::ErrorResponse::from_string_owned(e)))
                     .unwrap()
             }
         }
@@ -80,7 +80,7 @@ impl Handlers {
                 Response::builder()
                     .status(StatusCode::INTERNAL_SERVER_ERROR)
                     .header("Content-type", "application/json")
-                    .body(Body::from(models::ErrorResponse::from_string(&e)))
+                    .body(Body::from(models::ErrorResponse::from_string_owned(e)))
                     .unwrap()
             }
         }

@@ -30,8 +30,7 @@ async fn main() {
     };
 
     // App state creation.
-    let tokens_service = jwt::TokenService::new(&config.jwt_secret);
-    let app_state = AppState::new(pg_accessor, tokens_service).await;
+    let app_state = AppState::new(pg_accessor, jwt::TokenService::new(&config.jwt_secret)).await;
     match net::TcpListener::bind(&config.socket_addr).await {
         Ok(tcp_listener) => {
             tracing::info!("Listening on {}", &config.socket_addr);
